@@ -29,12 +29,6 @@ CHROME_DRIVER_PATH = r"C:\chromedriver-win64\chromedriver.exe"
 BASE_DOWNLOAD_DIR = r"C:\BankLedgers"
 
 
-# SSH/SFTP 설정 정보 (제공된 정보 입력)
-SFTP_HOST = '49.247.169.58'
-SFTP_PORT = 22
-SFTP_USER = 'root'
-SFTP_PASS = '&W2{RQS4'
-
 def extract_core_error_message(e):
     """핵심 에러 메시지 추출"""
     return f"{type(e).__name__}: {str(e)}"
@@ -94,23 +88,7 @@ def not_implemented_bank(*args, **kwargs):
 
 bank_functions = {
     'BANK001': {'personal': nh_personal, 'corp': nh_corp},                 # 농협은행
-    'BANK002': sinhan_get_balance,  # 신한은행 추가 연결
-    'BANK003': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 하나은행
-    'BANK004': kb_get_balance,                                             # 국민은행
-    'BANK005': ibk_get_balance,      # IBK은행 추가 연결
-    'BANK006': {'personal': woori_get_balance, 'corp': woori_get_balance},  # 우리은행 추가 연결
-    'BANK007': cu_login_and_get_balance,                                   # 신협은행
-    'BANK008': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 새마을금고
-    'BANK009': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 우체국
-    'BANK010': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 카카오뱅크
-    'BANK011': {'personal': sh_get_balance_personal, 'corp': sh_get_balance_corporate}, # 수협은행
-    'BANK012': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 광주은행
-    'BANK013': busan_corp,                                                 # 부산은행
-    'BANK014': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 대구은행
-    'BANK015': {'personal': not_implemented_bank, 'corp': not_implemented_bank},  # 경남은행
-}
-WEB_SERVER_BASE_PATH = "/usr/local/apache-tomcat-7.0.99/webapps/hptl_erp/file/attachFile/instt/bankLedgrExcel"
-AES_KEY = b'abc3456789123456'
+
 
 def ensure_directory_exists(path):
     if not os.path.exists(path):
@@ -234,79 +212,7 @@ def execute_request(request):
                 download_dir
             )
 
-        elif bank_code == 'BANK007':
-            original_excel, upload_excel = cu_login_and_get_balance(
-                CHROME_DRIVER_PATH,
-                request['ACCOUNT_ID'],
-                account_pw2_plain,
-                account_number,
-                start_date,
-                end_date,
-                download_dir
-            )
 
-        elif bank_code == 'BANK013':
-            original_excel, upload_excel = busan_corp(
-                CHROME_DRIVER_PATH,
-                request['ACCOUNT'],
-                account_pw_plain,
-                request['BIZRNO'],
-                start_date,
-                end_date,
-                download_dir
-            )
-
-        elif bank_code == 'BANK005':  # IBK 은행
-            original_excel, upload_excel = ibk_get_balance(
-                CHROME_DRIVER_PATH,
-                account_number,
-                account_pw_plain,
-                request['BIZRNO'],
-                start_date,
-                end_date,
-                download_dir
-            )
-
-        elif bank_code == 'BANK006':
-            original_excel, upload_excel = woori_get_balance(
-                CHROME_DRIVER_PATH,
-                account_number,
-                account_pw_plain,
-                request['BIZRNO'] if account_type == '01' else rprsntv_brthdy_plain,
-                start_date,
-                end_date,
-                download_dir
-            )
-
-        elif bank_code == 'BANK002':  # 신한은행
-            original_excel, upload_excel = sinhan_get_balance(
-                CHROME_DRIVER_PATH,
-                request['ACCOUNT_ID'],
-                account_pw2_plain,
-                account_number,
-                account_pw_plain,
-                start_date,
-                end_date,
-                download_dir
-            )
-
-        elif bank_code == 'BANK004':
-            birth_date = format_birthdate(rprsntv_brthdy_plain)
-
-            original_excel = kb_get_balance(
-                CHROME_DRIVER_PATH,
-                account_number,
-                account_pw_plain,
-                request['BIZRNO'],
-                start_date,
-                end_date,
-                download_dir,
-                birth_date
-            )
-            upload_excel = original_excel.replace(".xlsx", "_final.xlsx")
-
-        else:
-            raise ValueError("지원되지 않는 은행 코드입니다.")
 
         # 엑셀 파일 생성 이후 부분에서...
         ext_original = os.path.splitext(original_excel)[1]
@@ -315,9 +221,6 @@ def execute_request(request):
         api_filename = f"{req_seq}_API_{timestamp}{ext_original}"
         upload_filename = f"{req_seq}_{timestamp}{ext_upload}"
 
-        # 원격 서버에 저장할 경로 (리눅스 서버 절대경로)
-        api_remote_path = f"/usr/local/apache-tomcat-7.0.99/webapps/hptl_erp/file/attachFile/instt/bankLedgrExcel/{ini_hptl_no}/{api_filename}"
-        upload_remote_path = f"/usr/local/apache-tomcat-7.0.99/webapps/hptl_erp/file/attachFile/instt/bankLedgrExcel/{ini_hptl_no}/{upload_filename}"
 
         # SFTP를 통한 파일 업로드 호출
         upload_file_sftp(original_excel, api_remote_path)
