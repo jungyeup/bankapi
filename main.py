@@ -4,13 +4,7 @@ import os
 from db_connector import fetch_pending_requests, update_request_status
 from NH_BANK import get_balance as nh_personal
 from NH_CORP_BANK import corp_get_balance as nh_corp
-from suh_bank import sh_get_balance_corporate, sh_get_balance_personal
-from sinh_bank import cu_login_and_get_balance
-from bu_bank import corp_get_balance as busan_corp
-from kb_bank import kb_get_balance
-from ibk_bank import ibk_get_balance
-from sinhan_bank import sinhan_get_balance
-from woori_bank import woori_get_balance
+
 import shutil
 import binascii
 import logging
