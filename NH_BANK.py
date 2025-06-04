@@ -200,15 +200,14 @@ def _get_transactions(driver, bank, pw, birthday, start_date, end_date):
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '#InqGjaNbr')))
     time.sleep(5)
 
-    # 계좌번호 입력도 JavaScript로 바꾸면 더욱 확실함
+
     type_with_keyboard('#InqGjaNbr', bank, driver)
     time.sleep(1)
 
-    # 🔑 비밀번호 입력 (JS 직접입력으로 확실히 입력)
     type_with_keyboard('#GjaSctNbr', pw, driver)
     time.sleep(1)
 
-    # 생년월일 입력도 JS 입력 방식으로 변경 추천
+
     type_with_keyboard('#rlno1', birthday, driver)
     time.sleep(1)
 
